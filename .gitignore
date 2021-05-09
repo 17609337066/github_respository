@@ -1,1 +1,2 @@
-/react_learn/node_modules
+# [**]多级通配符  下面一句是忽略所有的node_modules文件夹
+**/node_modules
