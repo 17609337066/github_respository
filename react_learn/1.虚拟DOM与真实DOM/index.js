@@ -26,7 +26,7 @@
 
 // class Child extends Person{
 //   constructor(name,age,gender){
-    
+
 //   }
 // }
 
@@ -100,26 +100,29 @@
 
 */
 
+// [Symbol.iterator] = function(){
+//   console.log(1);
+// }
+// ab()
 
 let obj = {
-  arr: [1,2,3,4],
-  
-  [Symbol.interator]:function(){
+  arr: [1, 2, 3, 4],
+  [Symbol.iterator] () {
     return {
-      next:function(){
+      next () {
         let index = 0
-        if(index < this.arr.length){
+        if (index < this.arr.length) {
           index++
-          return {value:this.arr[index],done:false}
+          return { value: this.arr[index], done: false }
         }
-          return {value:'undifined',done:true}
+        return { value: 'undifined', done: true }
       }
     }
   }
 }
 
 
-for(v of obj){
+for (v of obj) {
   console.log(v);
 }
 
