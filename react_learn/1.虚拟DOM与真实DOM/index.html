@@ -16,8 +16,34 @@
   
   <script type="text/babel">
     const vm = (<div>hello,world</div>)
+    class Person{
+      constructor(name,speak){
+        this.name = name
+        // this.speak = this.speak.bind(this)
+      }
+      speak(){
+        console.log('speak',this)
+      }
+    }
 
-    ReactDOM.render(vm,document.getElementById('box'))
+
+    class Child extends Person{
+
+    }
+
+    let a = new Child()
+    a.speak()
+    let b = a.speak
+    console.log(a,b());
+
+
+    // function VM(){
+    //   return <div>nihao</div>
+    // }
+
+    // console.log(VM);
+
+    // ReactDOM.render(<VM />,document.getElementById('box'))
 
   </script>
 </body>
