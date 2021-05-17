@@ -11,6 +11,8 @@ function Block () {
   this.blockCatgrays = []
   // 目前渲染的方块方向
   this.dir = 0
+  // 暂存的方块
+  this.tempBlock = []
 
   // 具体要渲染的方块
   this.block = this.randomBlock()
@@ -20,7 +22,7 @@ function Block () {
 // 渲染方块（setcolor中操作dom）
 Block.prototype.render = function () {
   for (let i = 0; i < 4; i++) {
-    for (let j = 0; j < 4; j++) {
+    for (let j = 0; j < 4; j++) { 
       if (this.block[i][j] !== 0) {
         game.setColor(i + this.row, j + this.col, this.blockCatgray + 1)
       }
@@ -50,12 +52,17 @@ Block.prototype.randomBlock = function () {
 
 // 方块下落
 Block.prototype.blockMoveDown = function () {
-  console.log(this.row,this.col,this.check(this.row + 1, this.col));
+  // console.log(this.row,this.col,this.check(this.row + 1, this.col));
   if (this.check(this.row + 1, this.col)) {
     this.row++
-  } else {
+  } else if(this.row > 1){
     this.blockRenderToMap()
     game.block = new Block
+  }else{
+    this.blockRenderToMap()
+    game.map.render() 
+    console.log('gameover');
+    game.over = true
   }
 }
 
@@ -81,7 +88,8 @@ Block.prototype.blockRenderToMap = function () {
     for (let j = 0; j < 4; j++) {
       // if (game.map.construct[i + this.row][j + this.col] === 0) {
       if (this.block[i][j] !== 0) {
-        game.map.construct[this.row + i][this.col + j] = this.block[i][j]
+        game.map.construct[this.row + i][this.col + j] = 8
+        // game.map.construct[this.row + i][this.col + j] = this.block[i][j]
       }
     }
   }
@@ -90,15 +98,50 @@ Block.prototype.blockRenderToMap = function () {
 
 // 按  W  时方块的动作：变化
 Block.prototype.change = function () {
+  // if(!this.check(this.row,this.col)) return
+  let oldBlock = this.block
   if (this.dir < this.blockCatgrays.length - 1) {
     this.dir++
-  } else {
+  }else{
     this.dir = 0
   }
   this.block = this.blockCatgrays[this.dir]
+  if(!this.check(this.row,this.col)){
+    this.block = oldBlock
+  }
 }
 
 // 按 空格 是方向的动作，加速向下
 Block.prototype.pressSpace = function () {
-  // while(this.row)
+  console.log(1);
+  while(this.check(this.row + 1, this.col)){
+    this.row++
+  }
 }
+
+Block.prototype.moveToLeft = function(){
+  if(this.check(this.row,this.col - 1)){
+    this.col--
+  }
+}
+
+Block.prototype.moveToRight = function(){
+  if(this.check(this.row,this.col + 1)){
+    this.col++
+  }
+}
+
+
+
+// 判断此时方块能否变幻
+// Block.prototype.checkChange = function(){
+//   for(let i =0;i < 4;i++){
+//     for(let j = 0;j < 4;j++){
+//       if(this.block[i][j] !== 0 && game.map.construct[i + this.row][j + this.col] !== 0){
+//         return false
+//       }
+//     }
+//   }
+//   return true
+// }
+
