@@ -1,13 +1,13 @@
 // (function(){
 //   window.Game = function(){
-    
+
 //   }
 
 //   Game.prototype
 // })()
 
 
-function Game(){
+function Game () {
   // 渲染的dom行数
   this.row = 18
   // 渲染的dom列数
@@ -26,6 +26,8 @@ function Game(){
   this.block = new Block()
   // 地图对象
   this.map = new Map()
+  //判断游戏结束
+  this.over = false
   // 游戏初始化，渲染dom
   this.init()
 
@@ -36,11 +38,11 @@ function Game(){
   this.bindEvent()
 }
 
-Game.prototype.init = function(){
-  let $table = $("<table></table>") 
-  for(let i =0;i < this.row;i++){
-    let $row = $("<tr></tr>") 
-    for(let j = 0;j < this.col;j++){
+Game.prototype.init = function () {
+  let $table = $("<table></table>")
+  for (let i = 0; i < this.row; i++) {
+    let $row = $("<tr></tr>")
+    for (let j = 0; j < this.col; j++) {
       let $td = $("<td></td>")
       $($td).appendTo($row)
     }
@@ -50,32 +52,37 @@ Game.prototype.init = function(){
 }
 
 // 用来给方格上色
-Game.prototype.setColor = function(row,col,num){
+Game.prototype.setColor = function (row, col, num) {
   $("tr").eq(row).children('td').eq(col).addClass('c' + num)
 }
 
 // 开始游戏线程
-Game.prototype.start = function(){
+Game.prototype.start = function () {
   let _this = this
-  this.intervalId = setInterval(function(){
+  this.intervalId = setInterval(function () {
     _this.clearScreen()
-    if((_this.frames) %  (1000 / _this.speed) === 0){
+    _this.map.checkClearLine()
+    _this.map.render()
+    if ((_this.frames) % (1000 / _this.speed) === 0) {
       _this.block.blockMoveDown()
     }
-    _this.map.render()
+    
+    _this.over && clearInterval(game.intervalId)
     _this.block.render()
 
+
+    // if(_this.pressSpace) _this.block.pressSpace()
     _this.frames++
-  },20)
+  }, 20)
 }
 
 
 
 // 清除屏幕
-Game.prototype.clearScreen = function(){
+Game.prototype.clearScreen = function () {
   // if($('td').hasClass()) return
-  for(let i =0;i < this.row;i++){
-    for(let j = 0;j < this.col;j++){
+  for (let i = 0; i < this.row; i++) {
+    for (let j = 0; j < this.col; j++) {
       $('tr').eq(i).children('td').eq(j).removeClass()
     }
   }
@@ -83,23 +90,23 @@ Game.prototype.clearScreen = function(){
 
 
 // 注册事件
-Game.prototype.bindEvent = function(){
+Game.prototype.bindEvent = function () {
   this.keydown()
   this.keyup()
-  if(this.pressSpace) _this.block.pressSpace()
+
 }
 
 
 // 按键按下事件
-Game.prototype.keydown = function(){
+Game.prototype.keydown = function () {
   let _this = this
-   $(window).keydown(function(event){
+  $(window).keydown(function (event) {
     switch (event.keyCode) {
       case 87:
         _this.block.change()
         break;
       case 83:
-        _this.block.moveToDown()
+        // _this.block.moveToDown()
         break;
       case 65:
         _this.block.moveToLeft()
@@ -108,19 +115,21 @@ Game.prototype.keydown = function(){
         _this.block.moveToRight()
         break;
       // 常用keyCode： 空格 32   Enter 13   ESC 27
-      case 32: 
-        _this.pressSpace = true
+      case 32:
+        _this.block.pressSpace()
+        // _this.pressSpace = true
+        // console.log('press space', _this.pressSpace);
         break;
     }
   })
 }
 
 // 按键抬起事件
-Game.prototype.keyup = function(){
+Game.prototype.keyup = function () {
   let _this = this
-   $(window).keyup(function(event){
-    if(event.keyCode === 32){
-      _this.pressSpace = false
+  $(window).keyup(function (event) {
+    if (event.keyCode === 32) {
+      // _this.pressSpace = false
     }
   })
 }
