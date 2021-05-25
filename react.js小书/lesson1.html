@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>前端组件化1-3</title>
+  <style>
+    body {
+      position: fixed;
+      height: 100%;
+      width: 100%;
+    }
+
+    .wrapper {
+      height: 100%;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrapper">
+    <!-- <button class="like-btn">
+      <span class="like-text">点赞</span>
+      <span class="pic">👍</span>
+    </button> -->
+  </div>
+  <script>
+    /* const button = document.querySelector('.like-btn')
+    const buttonText = document.querySelector('.like-text')
+
+    let isLiked = false
+
+    button.addEventListener('click',()=>{
+      isLiked = !isLiked
+      if(isLiked){
+        buttonText.innerHTML = '取消'
+      }else{
+        buttonText.innerHTML = '点赞'
+      }
+    },false) */
+    /* 
+      这种写法没有可复用性（复用起来很麻烦，需要复制结构和行为）
+    */
+
+    // 写成可复用的类，render函数返回模板字符串直接用来渲染结构
+    // class LikeButton {
+    //   render() {
+    //     // 遇到的坑 ： return后跟的返回体不能空行，否则不会返回正确结果
+    //     return 
+    //       `
+    //       <button class="like-btn">
+    //         <span class="like-text">点赞</span>  
+    //         <span class="pic">👍</span>
+    //       </button>
+    //       `
+    //   }
+    // }
+
+
+    // const wrapper = document.querySelector('.wrapper')
+    // const LikeButton1 = new LikeButton()
+    // wrapper.innerHTML = LikeButton1.render()
+
+    // const LikeButton2 = new LikeButton()
+    // wrapper.innerHTML = LikeButton2.render()
+
+
+    // 以上写法无法给button添加点击事件，而DOM的添加事件的API只能给dom元素使用，所以改写如下
+    // ::String => ::Document
+    // const createDOMFromString = (domString) => {
+    //   const div = document.createElement('div')
+    //   div.innerHTML = domString
+    //   return div
+    // }
+
+    // class LikeButton {
+    //   constructor() {
+    //     this.state = { isLiked: false }
+    //   }
+
+    //   changLikeText(){
+    //     const likeText = this.el.querySelector('.like-text')
+    //     this.state.isLiked = !this.state.isLiked
+    //     likeText.innerText = this.state.isLiked ? '点赞':'取消' 
+    //   }
+
+    //   render() {
+    //     this.el = createDOMFromString(
+    //       `
+    //       <button class="like-btn">
+    //         <span class="like-text">点赞</span>  
+    //         <span class="pic">👍</span>
+    //       </button>
+    //       `
+    //     )
+    //     this.el.addEventListener('click',this.changLikeText.bind(this), false)
+    //     return this.el
+    //   }
+    // }
+
+    // const wrapper = document.querySelector('.wrapper')
+    // const LikeButton1 = new LikeButton()
+    // console.log(LikeButton1);
+    // wrapper.appendChild(LikeButton1.render())
+    // //--------------------------------------------------- 
+    // // 这里是有问题的，注意，这里的likebutton1和likebutton2的状态是公用的一个，没有查到原因，后来发现是 changLikeText方法中的liketext取错了，去成了document中的元素
+    // //--------------------------------------------------- 
+    // const LikeButton2 = new LikeButton()
+    // wrapper.appendChild(LikeButton2.render())
+    // console.log(LikeButton2);
+
+
+
+    /* 
+      优化dom操作，将dom操作放在数据更新之后
+    
+    */
+    // const createDOMFromString = (domString) => {
+    //   const div = document.createElement('div')
+    //   div.innerHTML = domString
+    //   return div
+    // }
+
+    //  class LikeButton {
+    //   constructor() {
+    //     this.state = { isLiked: false }
+    //   }
+
+    //   setState(state){
+    //     const oldDoc = this.el
+    //     this.state = state
+    //     this.el = this.render()
+    //     if(this.onStateChange) this.onStateChange(oldDoc,this.el)
+    //   }
+
+    //   changLikeText(){
+    //     this.setState({
+    //       isLiked:!this.state.isLiked
+    //     })
+    //   }
+
+    //   render() {
+    //     this.el = createDOMFromString(
+    //       `
+    //       <button class="like-btn">
+    //         <span class="like-text">${this.state.isLiked ? '点赞' : '取消'}</span>  
+    //         <span class="pic">👍</span>
+    //       </button>
+    //       `
+    //     )
+    //     this.el.addEventListener('click',this.changLikeText.bind(this), false)
+    //     return this.el
+    //   }
+    // }
+
+    // const wrapper = document.querySelector('.wrapper')
+    // const LikeButton1 = new LikeButton()
+    // wrapper.appendChild(LikeButton1.render())
+    // LikeButton1.onStateChange = function(oldDoc,newDoc){
+    //   wrapper.insertBefore(newDoc,oldDoc)
+    //   wrapper.removeChild(oldDoc)
+    // }
+
+    // const LikeButton2 = new LikeButton()
+    // wrapper.innerHTML = LikeButton2.render()
+
+  
+    /* 
+      抽象出公共组件类
+    */
+
+     const createDOMFromString = (domString) => {
+      const div = document.createElement('div')
+      div.innerHTML = domString
+      return div
+    }
+
+     class Component {
+       constructor(props){
+        this.props = props
+       }
+      setState(state){
+        const oldDoc = this.el
+        this.state = state
+        this._renderDOM()
+        if(this.onStateChange) this.onStateChange(oldDoc,this.el)
+      }
+      _renderDOM() {
+        this.el = createDOMFromString(this.render())
+        if(this.onclick) this.el.addEventListener('click',this.onclick.bind(this), false)
+        return this.el
+      }
+    }
+
+    const mount = (component,wrapper)=>{
+      wrapper.appendChild(component._renderDOM())
+      component.onStateChange = (oldDoc,newDoc)=>{
+        wrapper.insertBefore(newDoc,oldDoc)
+        wrapper.removeChild(oldDoc)
+      }
+    }
+    const wrapper = document.querySelector('.wrapper')
+    class LikeButton extends Component {
+      constructor(props){
+        super(props)
+        this.state = {
+          isLiked: false
+        }
+      }
+      onclick(){
+        this.setState({
+          isLiked: !this.state.isLiked
+        })
+      }
+      render(){
+        return `
+          <button class="like-btn">
+            <span class="like-text">${this.state.isLiked ? '点赞' : '取消'}</span>  
+            <span class="pic">👍</span>
+          </button>
+        `
+      }
+    }
+
+    mount(new LikeButton(),wrapper)
+
+  </script>
+</body>
+
+</html>

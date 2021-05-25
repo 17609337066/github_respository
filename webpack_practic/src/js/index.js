@@ -5,6 +5,10 @@
   cli-----命令行接口工具
   webpack只用于开发环境，所以安装命令使用 npm i -D
   如果是生产环境  使用 npm i -S 安装包
+
+
+  webpack处理js文件只将es6模块化语法转化为浏览器能认识的common写法
+  package.json是npm初始化以后生成的配置文件
 */
 
 
@@ -14,6 +18,8 @@ import {sub} from './module2'
 import module3 from './module3'
 // 引入json
 import a from '../js/test.json'
+// 引入样式
+import '../css/index.less'
 
 console.log(sum(1,2));
 console.log(sub(3,2));
